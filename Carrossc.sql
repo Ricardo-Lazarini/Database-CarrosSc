@@ -3,7 +3,7 @@ create database carrossc;
 use carrossc;
 
 create table localizacoes (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     estado varchar(20) not null unique,
     capital varchar(20) not null unique,
     uf varchar(3) not null unique,
@@ -15,9 +15,9 @@ create table localizacoes (
 );
 
 create table categorias (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     NomeCategoria varchar(30) not null unique,
-	data datetime 
+    data datetime 
 );
 
 create table cores (
@@ -26,7 +26,7 @@ create table cores (
 );
 
 create table marcas (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     NomeMarca varchar(20) not null unique,
     origem varchar(20) not null,
     categoriaId int not null,
@@ -34,22 +34,22 @@ create table marcas (
 );
 
 create table modelos (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     NomeModelo varchar(20) not null unique,
     combustivel varchar(10),
-	valor double not null,
+    valor double not null,
     qtd int not null,
     categoriaId int ,
     foreign key ( categoriaId ) references categorias ( id ),
     marcaId int,
-	foreign key ( marcaId ) references marcas ( id ),
+    foreign key ( marcaId ) references marcas ( id ),
     CorId int,
     foreign key ( CorId ) references cores ( id )
 );
 
 
 /*
-	Trigger para formatar valores dos modelos
+    Trigger para formatar valores dos modelos
     Recebera os numeros sem pontos e formata com ponto após os centavos
 */
 
@@ -59,7 +59,7 @@ on modelos
 for each row
 Begin
 
-	Declare x int;
+    Declare x int;
     Declare posicao1 int;
     Declare posicao2 int;
  
@@ -75,15 +75,15 @@ Delimiter ;
 
 /* As 5 próximas tabelas, são relacionadas aos funcionarios */
 create table cargos (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     nomeCargo varchar(30) not null unique,
     salario double not null,
-	dataCadastro datetime default( now() )
+    dataCadastro datetime default( now() )
 );
 
 
 /* 
-	Trigger para formatar os valores dos salarios recebidos do EF  
+    Trigger para formatar os valores dos salarios recebidos do EF  
 */
 Delimiter $$
 create trigger tr_formatar_salario before insert 
@@ -91,7 +91,7 @@ on cargos
 for each row
 Begin
 
-	Declare s double;
+    Declare s double;
     Declare p1 int;
     Declare p2 int;
     
@@ -113,7 +113,7 @@ on cargos
 for each row
 Begin
 
-	Declare s double;
+    Declare s double;
     Declare p1 int;
     Declare p2 int;
     
@@ -127,14 +127,14 @@ Delimiter ;
 
 
 create table ajusteSalarial (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     nomeCargo varchar(30) not null,
     salarioAntigo double not null,
     salarioAtualizado double not null ,
     ajuste varchar(11) not null,
     porcentagen varchar(11) not null,
-	ultimoAjuste datetime ,
-	dataAjuste datetime
+    ultimoAjuste datetime ,
+    dataAjuste datetime
 );
 
 /*  trigger para adicionar os ajustes dos salarios na tabela ajustesSalarial  */
@@ -144,7 +144,7 @@ on cargos
 for each row
 begin 
 
-	Declare ajuste varchar(11);
+    Declare ajuste varchar(11);
     Declare res varchar(11);
 
 	/* Verifica se o novo salario é maior ou menor que o antigo  */
@@ -167,7 +167,7 @@ delimiter ;
 
 
 create table funcionarios (
-	id int not null primary key auto_increment,
+    id int not null primary key auto_increment,
     matricula varchar(15) not null unique, 	/* trigger */
     nome varchar(20) not null,
     sobrenome varchar(40) not null,
@@ -182,7 +182,7 @@ create table funcionarios (
     cargo varchar(30) not null,
     salario double not null,
     lojaCidade varchar(20) not null,
-	bairro varchar(20) not null,
+    bairro varchar(20) not null,
     rua varchar(50) not null,
     numero int not null ,
     LocalizacaoId int ,
@@ -197,7 +197,7 @@ create trigger tr_funcionarios before insert
 	on funcionarios 
 	for each row
 	Begin
-		Declare cont int ;
+	Declare cont int ;
         Declare idcargo int ;
         Declare salariox float;
         
@@ -218,7 +218,7 @@ create trigger tr_funcionarios before insert
             
         /* Soma a quantidade de registros exisentes para a criação de uma matricula unica*/
         select count(id) into cont from funcionarios; 
-	    set new.matricula = concat( substring(new.cargo,1,4) , '-' , extract(year from new.admissao) , '-' , cont + 1);
+	set new.matricula = concat( substring(new.cargo,1,4) , '-' , extract(year from new.admissao) , '-' , cont + 1);
         
         /* Mascara para o cpf*/
         set new.cpf = concat(substring(new.cpf,1,3) , '.' , substring(new.cpf,4,3) ,'.' , substring(new.cpf,7,3) ,'-' , substring(new.cpf,10,2) );
@@ -237,22 +237,22 @@ create trigger tr_funcionarios before insert
         
         /* Verifica a classificação do imc e adiciona o valor ao campo classificacaoImc */
         if new.imc < 18.5 then
-			set new.classificacaoImc = 'Abaixo do peso';
-		elseif new.imc >= 18.5 and new.imc < 25 then
-			set new.classificacaoImc = 'Peso Normal';
+	        set new.classificacaoImc = 'Abaixo do peso';
+	elseif new.imc >= 18.5 and new.imc < 25 then
+		set new.classificacaoImc = 'Peso Normal';
         elseif new.imc >= 25 and new.imc < 30 then
-			set new.classificacaoImc = 'Sobrepeso';
+		set new.classificacaoImc = 'Sobrepeso';
         elseif new.imc >= 30 and new.imc < 35 then
-			set new.classificacaoImc = 'Obesidade Grau |';
+		set new.classificacaoImc = 'Obesidade Grau |';
         elseif new.imc >= 35 and new.imc < 40 then
-			set new.classificacaoImc = 'Obesidade Grau ||';
+		set new.classificacaoImc = 'Obesidade Grau ||';
         elseif new.imc >= 40 then
-			set new.classificacaoImc = 'Obesidade Grau ||| ou Mórbida';
-		end if;
+		set new.classificacaoImc = 'Obesidade Grau ||| ou Mórbida';
+	end if;
         
         /* Inserção dos registros de nome e matricula na tabela de vendedores */
         if substring(new.cargo,1,4) = 'Vend' then
-			insert into vendedores(nome,matricula)values(new.nome, concat( substring(new.cargo,1,4) , '-' , extract(year from new.admissao) , '-' , cont + 1));
+		insert into vendedores(nome,matricula)values(new.nome, concat( substring(new.cargo,1,4) , '-' , extract(year from new.admissao) , '-' , cont + 1));
         end if ;    
         
 	End $$
@@ -268,7 +268,7 @@ somaVendas double default(0)
 
 
 create table demissoes (
-	id int not null primary key auto_increment,
+    id int not null primary key auto_increment,
     matricula varchar(15) not null ,
     nome varchar(20) not null,
     sobrenome varchar(40) not null,
@@ -282,11 +282,11 @@ create table demissoes (
     filho int not null,
     cargo varchar(30) not null,
     salario double not null,
-	lojaCidade varchar(20) not null,
+    lojaCidade varchar(20) not null,
     bairro varchar(20) not null,
     rua varchar(50) not null,
     numero int not null ,
-	Localizacao int,
+    Localizacao int,
     admissao date ,
     dataDemissao datetime default( now() )
 );
@@ -298,7 +298,7 @@ on funcionarios
 for each row
 begin 
 
-	insert into demissoes (matricula,nome,sobrenome,sexo,cpf,idade,peso,altura,imc,classificacaoImc,filho,cargo,salario,lojaCidade,bairro,rua,numero,Localizacao,admissao) 
+    insert into demissoes (matricula,nome,sobrenome,sexo,cpf,idade,peso,altura,imc,classificacaoImc,filho,cargo,salario,lojaCidade,bairro,rua,numero,Localizacao,admissao) 
     values(old.matricula,old.nome,old.sobrenome,old.sexo,old.cpf,old.idade,old.peso,old.altura,old.imc,old.classificacaoImc,old.filho,old.cargo,old.salario,old.lojaCidade,old.bairro,old.rua,old.numero,
     old.LocalizacaoId,old.admissao);
     
@@ -306,7 +306,7 @@ end $$
 delimiter ;
 
 create table clientes (
-	id int not null auto_increment primary key ,
+    id int not null auto_increment primary key ,
     nome varchar(15) not null,
     sobrenome varchar(30) not null,
     sexo varchar(10) not null,
@@ -330,7 +330,7 @@ on clientes
 for each row
 Begin
 
-	Declare  dataAtual date;
+    Declare  dataAtual date;
     set dataAtual = now();
     
     /* Adicionar mascara ao cpf do cliente */
@@ -338,18 +338,18 @@ Begin
     
     /* Verificação da idade */
 	if extract(day from dataAtual) >= extract(day from new.dataNascimento) and extract(month from dataAtual) >= extract(month from new.dataNascimento) then
-		set new.idade = extract(year from dataAtual) - extract(year from new.dataNascimento);
+	    set new.idade = extract(year from dataAtual) - extract(year from new.dataNascimento);
 	else    
-		set new.idade = ( extract(year from dataAtual) - extract(year from new.dataNascimento) ) - 1 ;
+	    set new.idade = ( extract(year from dataAtual) - extract(year from new.dataNascimento) ) - 1 ;
 	end if;
     
     /* Verificação da faixa etaria */
     if new.idade <= 19 then
-		set new.faixaEtaria = 'Jovem';
+	set new.faixaEtaria = 'Jovem';
     elseif new.idade > 19 and new.idade <= 59 then
-		set new.faixaEtaria = 'Adulto';
+	set new.faixaEtaria = 'Adulto';
     elseif new.idade >= 60 then
-		set new.faixaEtaria = 'Idoso';
+	set new.faixaEtaria = 'Idoso';
     end if;    
     
 End $$
@@ -390,8 +390,8 @@ on vendas
 for each row
 Begin
 
-	/* dados do vendeddor*/
-	Declare idv int;
+     /* dados do vendeddor*/
+    Declare idv int;
     Declare mat varchar(20);
     
     /* dados do cliente*/
@@ -445,7 +445,7 @@ Begin
 
     
     
-	select id into idd from vendedores where new.matricula = matricula limit 1;   	/* seleciona o id dos vendedores onde a matricula da venda é igual ao da tabela de vendedores*/
+    select id into idd from vendedores where new.matricula = matricula limit 1;   	/* seleciona o id dos vendedores onde a matricula da venda é igual ao da tabela de vendedores*/
     select count(*) into qtdTotal from vendas;  									/* Soma a quantidade total de vendas da tabela vendas */
     select count(id) into qtd from vendas where matricula = new.matricula;			/* Soma a quantidade total de vendas que o vendedor que fez a ultima  venda tem no total */
 
@@ -466,7 +466,7 @@ create trigger tr_calculos_Estados after insert
 on vendas
 for each row
 Begin
-	Declare ide int ;
+    Declare ide int ;
     declare qtdTotalVendas int; 
     Declare qtdlEstado int;
     declare somaTotal double;
@@ -506,17 +506,17 @@ on servicos
 for each row
 Begin
 
-	if length(new.placa) = 6 then
-		set new.placa = concat(substring(new.placa,1,3) , '-' , substring(new.placa,4,6));
+    if length(new.placa) = 6 then
+	set new.placa = concat(substring(new.placa,1,3) , '-' , substring(new.placa,4,6));
     end if;
     
 End $$
 delimiter ;
 
 create table reclamacoes (
-	id int not null auto_increment primary key,
+    id int not null auto_increment primary key,
     descricao longtext not null,
     relacionado varchar(30) not null,
     quemFez varchar(20) not null,
-	dataReclamacao datetime default( now() )
+    dataReclamacao datetime default( now() )
 );
