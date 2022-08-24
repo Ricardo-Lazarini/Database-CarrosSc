@@ -1,5 +1,5 @@
 create database carrossc;
-SALVO AGORA.
+
 use carrossc;
 
 create table localizacoes (
