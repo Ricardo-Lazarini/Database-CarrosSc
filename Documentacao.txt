@@ -1,0 +1,124 @@
+	Data :	24-08-2022
+
+	Descrição:
+	Esta base de dados foi desenvolvida para um sitema de uma concessionaria.
+	Nestas pastas, contem apenas a parte de criação do banco de dados. Contém o arquivo .sql, algumas imagens da aplicação pronta e uma imagem do MER.
+	A aplicação inteira, esta em outro arquivo aqui no GITHUB.
+	Esta foi a primeira base de dados que criei usando relações entre tabelas com foreign key. Na data de hoje, com um pouco mais de conhecimento esta base de dados seria criada com relações diferentes. 
+
+
+	Descrição das tabelas. 
+
+	Tabela de estados 
+	Irá receber todos os estados, uf, capitais e regiões onde existirem lojas cadastradas.
+	Os registros de estado, capitais, região e uf, foram tirados da internet usando webScrapping com Power Bi 
+	Terá campos que calcularão as quantidades de vendas, valores e as porcentagens relativas por estado. Estes campos serão adicionados pela trigger tr_estado
+
+
+	Tabela de Cargos
+	Posui registros relacionados aos cargos dos funcionarios da empresa.
+
+
+	Tabela de ajusteSalarial
+	Recebe seus registros através de uma trigger, toda vez que um update é realizado na coluna de salario na tabela de cargos.	
+	Exibe informações se o ajuste foi negativo ou posistivo e a porcentagem em relação ao aumento ou diminuição.
+
+
+	Tabela de funcionarios
+	Contem todos os registros dos funcionarios da empresa.
+	O campo de matricula é adicionado por uma trigger que concatena os quatros primeiros digitos do cargo , o ano da adimissão e o id.
+	O campo cpf recebe uma mascara pela trigger.
+	Os campos de imc e classificacaoImc são adicionados por uma trigger que realiza seus calculos e classificação.
+	Trigger usada para estas funções : tr_funcionarios.
+
+
+	Tabela de vendedores
+	A função desta tabela é para fins estatísticos das vendas dos vendedores.
+	Recebe seus registros por uma trigger, que verifica se o funcionario admitido pela empresa é um vendedor e o adiciona nesta tabela.
+	Possui colunas que calculam quantidade, soma das vendas e porcentagens relativas toda vez que uma venda é realizada. Recebe estes calculos através da trigger tr_funcionarios.
+
+
+	Tabela de demissões
+	Tem a finalidade de manter o registro de todos os funcionarios que foram demitidos.
+	Recebe seus registros quando um funcionario é demitido pela trigger tr_demissoes.
+	
+
+	Tabela de clientes
+	Possui cadastro dos clientes
+	Os campos de idade e faixa etaria recebem seus valores pela trigger tr_clientes.
+
+
+	Tabela de categorias
+	Possui registros das categorias dos veiculos.
+
+	Tabela de marcas
+	Possui os registros de marcas dos veiculos.
+
+
+	Tabela de cores
+	Possui registros das cores dos veiculos.
+
+	
+	Tabela de modelos
+	Possui registros dos modelos dos veiculos.
+	O campo alerta, exibe uma mensagem caso a quantidade de veiculos em estoque seja inferior a 2 unidades. Recebe seu valor pela trigger tr_modelo.
+
+	
+	Tabela de vendas
+	Possui registros relacionados à venda. Dados do vendedor, cliente e modelo vendido.
+	Na interface grafica, pega apenas o Id do vendedor, do cliente e do modelo, e as informações restantes, pega do banco de dados por uma trigger. 
+
+	Tabela de serviços
+	Registra dados relacionados aos serviços de manutenção( mecanicos) na empresa.
+	
+
+	Tabela de reclamacoes.
+	Tem a finalidade de mapear as reclamações para corrigir e evitar futuros problemas na empresa.
+	Recebe seus registros tanto de clientes ativos como possíveis clientes( consumidores ). 
+	Tem uma pequena estatística de reclamaçoes, para analisar quem mais causa problemas.
+	Equivalente a uma avaliação da empresa.
+
+
+
+
+	Triggers e suas funções
+
+	. tr_calculos_Estados
+	São disparadas toda vez que ocorre uma venda na tabela de vendas e são adicionas na tabela de estados, quantidades e porcentagens das vendas apenas por estado.
+	Tem o objetivo de gerar dados para analises das vendas por estado.
+	Realiza calculos referentes à quantidade de unidades vendidas e a soma dos valores dos mesmos por estado e mostra a porcentagem relacionada a este calculo.
+
+	
+	. tr_ajusteSalario
+	São disparadas toda vez que ocorre um update na tabela de cargos e adicionada na tabela de ajusteSalarial
+	Tem o objetivo de monitorar os ajustes que os salarios tiveram. 
+	Verifica se o novo salario teve um aumento ou redução, calcula a diferença e porcentagem relativa.
+
+	
+	.tr_funcionarios
+	Disparada quando ocorre um insert na tabela de funcionarios e adiciona seus valores na tabela funcionarios e vendedores.
+	Objetivo é adicionar uma matricula unica ao funcionario, concatenando seus 4 primeiros digitos de cargo mais o ano de da data de admissão mais o id.
+	Adiciona uma mascara ao campo cpf. Calcula o imc e verifica sua classificação e adiciona os funcionarios que os quatro primeiro digitos da matricula for "Vend" 
+	à tabela de vendedores 
+
+
+	. tr_demissao
+	Disparada quando ocorre um delete na tabela de funcionarios e adiciona seus valores na tabela de demissões.
+	Tem o objetivo de armazenas todos os funcionarios demitidos.
+
+
+	. tr_modelo
+	Disparada quando ocorre um insert ou um update na tabela de modelos e adiciona o valor na tabela de modelo.
+	Tem o objetivo de alertar o estoque baixo.
+
+
+	. tr_faixaEtaria
+	Disparada quando ocorre um insert na tabela de clientes e adiciona valores a própria tabela.
+	O maior objetivo é gerar dados para a analises futuras de vendas pela faixa etaria.
+	Adiciona mascara ao campo de cpf. Calcula a idade e faixa etaria através da data de nascimento adicionada. 
+	
+
+	. tr_calculosVendas
+	Disparada toda vez que ocorre uma venda, um valor seja adicionado a tabela de vendas e adiciona seus calculos na tabela de vendedores
+	Tem o objetivo maior de mostrar dados para analises futuras e de mapear as vendas por vendedor.
+	Realiza calculos de quantidade vendidas, soma dos valores e porcentagens de ambos.
